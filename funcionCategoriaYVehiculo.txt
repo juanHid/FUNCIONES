@@ -1,6 +1,6 @@
    private void añadirCategoriaYVehiculo(Categoria categoria, Vehiculo vehiculo) {
 
-        //Para grabarlo en el logger
+        //Para grabarlo en nuestro logger
         if (LoggerManager.DEBUG) {
             LoggerManager.getLog().info("Añadiendo: " + categoria.toString() + " y " + vehiculo.toString());
         }
