@@ -1,0 +1,39 @@
+   private void añadirCategoriaYVehiculo(Categoria categoria, Vehiculo vehiculo) {
+
+        //Para grabarlo en el logger
+        if (LoggerManager.DEBUG) {
+            LoggerManager.getLog().info("Añadiendo: " + categoria.toString() + " y " + vehiculo.toString());
+        }
+          
+        // Declaro la sentencia sql necesaria
+        String categoriaSql = "INSERT INTO categoria (tipo,descripcion) VALUES "
+                + "('" + categoria.getTipo() + "','" + categoria.getDescripcion() + "')";
+        
+        try {
+            
+            //Deshabilitar el autoCommit
+            DatabaseManager.conn.setAutoCommit(false);
+            
+            //Añadir la categoria y obtener su index con el metodo executeUpdate
+            int categoriaId = DatabaseManager.executeUpdate(categoriaSql);
+
+            //Añadir el vehiculo a la categoria con ese index 
+            añadirVehiculo(categoriaId,vehiculo);
+            
+            
+            // Hacer commit  no hace falta porque se hace en la añadirVehiculo
+           // DatabaseManager.conn.commit();
+            
+        } catch (SQLException ex) {
+            if (LoggerManager.DEBUG) {
+              LoggerManager.getLog().error(ex.toString());
+           }
+        }finally{
+            try {
+                DatabaseManager.conn.setAutoCommit(true);
+            } catch (SQLException ex) {
+                  LoggerManager.getLog().error(ex.toString());
+            }
+        }
+
+    }
