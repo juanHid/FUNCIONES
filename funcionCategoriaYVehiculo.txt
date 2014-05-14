@@ -1,4 +1,4 @@
-   private void añadirCategoriaYVehiculo(Categoria categoria, Vehiculo vehiculo) {
+ private void añadirCategoriaYVehiculo(Categoria categoria, Vehiculo vehiculo) {
 
         //Para grabarlo en nuestro logger
         if (LoggerManager.DEBUG) {
@@ -9,25 +9,25 @@
         String categoriaSql = "INSERT INTO categoria (tipo,descripcion) VALUES "
                 + "('" + categoria.getTipo() + "','" + categoria.getDescripcion() + "')";
         
-        try {
-            
+        try {            
             //Deshabilitar el autoCommit
-            DatabaseManager.conn.setAutoCommit(false);
-            
+            DatabaseManager.conn.setAutoCommit(false);         
             //Añadir la categoria y obtener su index con el metodo executeUpdate
             int categoriaId = DatabaseManager.executeUpdate(categoriaSql);
-
-            //Añadir el vehiculo a la categoria con ese index 
-            añadirVehiculo(categoriaId,vehiculo);
-            
-            
-            // Hacer commit  no hace falta porque se hace en la añadirVehiculo
-           // DatabaseManager.conn.commit();
-            
+            //Añadir el vehiculo a la categoria con ese index
+            boolean hacerCommit =false;  //Flag para hacer o no commit en la funcion añadoVehiculo
+            añadoVehiculo(categoriaId,vehiculo,hacerCommit);                     
+            // Hacer commit 
+            DatabaseManager.conn.commit();          
         } catch (SQLException ex) {
-            if (LoggerManager.DEBUG) {
-              LoggerManager.getLog().error(ex.toString());
-           }
+            try {
+                DatabaseManager.conn.rollback();
+                LoggerManager.getLog().error(ex.toString());
+               
+            } catch (SQLException ex1) {
+                 LoggerManager.getLog().error(ex1.toString());
+            }
+
         }finally{
             try {
                 DatabaseManager.conn.setAutoCommit(true);
@@ -35,5 +35,4 @@
                   LoggerManager.getLog().error(ex.toString());
             }
         }
-
     }
