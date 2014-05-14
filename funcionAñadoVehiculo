@@ -1,0 +1,82 @@
+   private void añadoVehiculo(int categoriaIndex, Vehiculo vehiculo,Boolean hacerCommit) {
+
+                 if (LoggerManager.DEBUG) {
+                    LoggerManager.getLog().info("indice de categoria "+ categoriaIndex);
+                    LoggerManager.getLog().info("vehiculo "+ vehiculo.getFabricante());
+                }
+        
+        
+        //para añadir el vehiculo hay que añadir el motor primero para saber su id(del motor)
+        String motorSql = "INSERT INTO motor (potencia,cilindros) VALUES "
+                + "('" + vehiculo.getMotor().getPotencia() + "','" + vehiculo.getMotor().getCilindros() + "')";
+        String vehiculoSql = "INSERT INTO vehiculo (matricula,fabricante,color,velocidadMax,categoria_id,motor_id,vehiculo_tipo_id) VALUES "
+                + "('" + vehiculo.getMatricula() + "','" + vehiculo.getFabricante() + "','" + vehiculo.getColor() + "'," + vehiculo.getVelocidadMax() + "," + categoriaIndex + ",MOTOR_ID,VEHICULO_TIPO_ID)";
+
+        //Si vehiculo es del tipo Coche
+        if (vehiculo instanceof Coche) {
+            //llamo a replaceAll() para sustituir VEHICULO_TIPO_ID por el valor id que corresponde a Coche
+            //Almacenado en la constante tipo String al principio de esta clase
+            vehiculoSql = vehiculoSql.replaceAll("VEHICULO_TIPO_ID", COCHE_ID);
+
+        }
+        if (vehiculo instanceof Moto) {
+            vehiculoSql = vehiculoSql.replaceAll("VEHICULO_TIPO_ID", MOTO_ID);
+        }
+
+        //falta el motor_id
+        //hay que insertarlo y obtener el id
+        //Creamos un bloque try-catch donde ira el codigo de la transaccion
+        //Declaramos unas variables para trabajar el query
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            //Deshabilitar el autoCommit
+            
+            if(hacerCommit){
+              DatabaseManager.conn.setAutoCommit(false);
+            }
+   
+            // LLamar a una funcion que ejecuta el INSERT motorSql y
+            // me devuelve el id del elemento añadido a la base de datos
+            int motorId = DatabaseManager.executeUpdate(motorSql);
+
+            
+            //Completo el INSERT vehiculoSql con el id del motor
+            vehiculoSql = vehiculoSql.replaceAll("MOTOR_ID", String.valueOf(motorId));
+            
+   
+            // Ejecutar el INSERT vehiculoSql y obtener el id
+            DatabaseManager.executeUpdate(vehiculoSql);
+
+            // Hacer commit
+            if(hacerCommit){
+            DatabaseManager.conn.commit();
+            }
+        } catch (SQLException ex) {
+            try {
+                DatabaseManager.conn.rollback();
+                if (LoggerManager.DEBUG) {
+                    LoggerManager.getLog().error(ex.toString());
+                }
+                
+                
+            } catch (SQLException ex1) {
+                //Lo grabamos con nuestro logger
+                if (LoggerManager.DEBUG) {
+                    LoggerManager.getLog().error(ex.toString());
+                }
+            }
+
+        } finally {
+            //Habilitar autoCommit
+            try {
+                DatabaseManager.conn.setAutoCommit(true);
+            } catch (SQLException ex) {
+                if (LoggerManager.DEBUG) {
+                    LoggerManager.getLog().error(ex.toString());
+                }
+            }
+        }
+
+    }
