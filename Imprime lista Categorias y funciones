@@ -1,0 +1,10 @@
+          //3.imprimir la lista de categorias y vehiculos
+
+            for(int i=0;i<categoriaList.size();i++){
+                 Categoria categoriaTmp=categoriaList.get(i);
+                 out.println("<h2>Tipo de categoria: "+categoriaTmp.getTipo()+"</h2>");
+                      for(int j=0;j< categoriaTmp.getListaVehiculos().size();j++){                       
+                          Vehiculo vehiculoTmp= categoriaTmp.getListaVehiculos().get(j);
+                           out.println("<p>"+vehiculoTmp.toString()+"</p>");
+                      }
+            }
