@@ -1,6 +1,7 @@
    
+ 
    
-   private String controlaTipoUsuarioTest(String usuario, String password) {
+   private String controlaTipoUsuario(String usuario, String password) {
         String tmp = null;
         //TODO
         //Codigo para controlar si existe el usuario en BD
